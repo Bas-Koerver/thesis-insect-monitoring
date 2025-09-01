@@ -1159,6 +1159,15 @@ wheels = [
 ]
 
 [[package]]
+name = "narwhals"
+version = "2.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/01/8f/6b3d8c19540eaaa50778a8bbbe54e025d3f93aca6cdd5a4de3044c36f83c/narwhals-2.2.0.tar.gz", hash = "sha256:f6a34f2699acabe2c17339c104f0bec28b9f7a55fbc7f8d485d49bea72d12b8a", size = 547070, upload-time = "2025-08-25T07:51:58.904Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dd/54/1ecca75e51d7da8ca53d1ffa8636ef9077a6eaa31f43ade71360b3e6449a/narwhals-2.2.0-py3-none-any.whl", hash = "sha256:2b5e3d61a486fa4328c286b0c8018b3e781a964947ff725d66ba12f6d5ca3d2a", size = 401021, upload-time = "2025-08-25T07:51:56.97Z" },
+]
+
+[[package]]
 name = "nbclient"
 version = "0.10.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1610,6 +1619,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/fe/8b/3c73abc9c759ecd3f1f7ceff6685840859e8070c4d947c93fae71f6a0bf2/platformdirs-4.3.8.tar.gz", hash = "sha256:3d512d96e16bcb959a814c9f348431070822a6496326a4be0911c40b5a74c2bc", size = 21362, upload-time = "2025-05-07T22:47:42.121Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fe/39/979e8e21520d4e47a0bbe349e2713c0aac6f3d853d0e5b34d76206c439aa/platformdirs-4.3.8-py3-none-any.whl", hash = "sha256:ff7059bb7eb1179e2685604f4aaf157cfd9535242bd23742eadc3c13542139b4", size = 18567, upload-time = "2025-05-07T22:47:40.376Z" },
+]
+
+[[package]]
+name = "plotly"
+version = "6.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "narwhals" },
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a0/64/850de5076f4436410e1ce4f6a69f4313ef6215dfea155f3f6559335cad29/plotly-6.3.0.tar.gz", hash = "sha256:8840a184d18ccae0f9189c2b9a2943923fd5cae7717b723f36eef78f444e5a73", size = 6923926, upload-time = "2025-08-12T20:22:14.127Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/95/a9/12e2dc726ba1ba775a2c6922d5d5b4488ad60bdab0888c337c194c8e6de8/plotly-6.3.0-py3-none-any.whl", hash = "sha256:7ad806edce9d3cdd882eaebaf97c0c9e252043ed1ed3d382c3e3520ec07806d4", size = 9791257, upload-time = "2025-08-12T20:22:09.205Z" },
+]
+
+[package.optional-dependencies]
+express = [
+    { name = "numpy" },
 ]
 
 [[package]]
@@ -2143,6 +2170,7 @@ dependencies = [
     { name = "kornia" },
     { name = "networkx" },
     { name = "numba" },
+    { name = "plotly", extra = ["express"] },
     { name = "pypylon" },
     { name = "torch", version = "2.8.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' and sys_platform != 'win32'" },
     { name = "torch", version = "2.8.0+cu129", source = { registry = "https://download.pytorch.org/whl/cu129" }, marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
@@ -2167,6 +2195,7 @@ requires-dist = [
     { name = "kornia", specifier = ">=0.8.1" },
     { name = "networkx", specifier = ">=3.5" },
     { name = "numba", specifier = ">=0.61.2" },
+    { name = "plotly", extras = ["express"], specifier = ">=6.3.0" },
     { name = "pypylon", specifier = ">=4.2.0" },
     { name = "torch", marker = "sys_platform != 'linux' and sys_platform != 'win32'", specifier = ">=2.8.0" },
     { name = "torch", marker = "sys_platform == 'linux' or sys_platform == 'win32'", specifier = ">=2.8.0", index = "https://download.pytorch.org/whl/cu129" },
@@ -2255,14 +2284,14 @@ dependencies = [
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-manylinux_2_28_aarch64.whl" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:02c7258e917f3043c978b53acf6f02b818db0d0d85db0e58ae578af333b9b4e2" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-win_amd64.whl", hash = "sha256:2bc729898e422b9f3da54349eed98f2f0b5dd415434508ee2ab2a13fb021815d" },
+    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-manylinux_2_28_x86_64.whl" },
+    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp312-cp312-win_amd64.whl" },
     { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313-manylinux_2_28_aarch64.whl" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:563740167be2189b71530b503f0c8a8d7a8267dd49d4de6f9c5f1d23fbe237df" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313-win_amd64.whl", hash = "sha256:2cef066f9759ff4d7868a8c3695aa60d9a878598acb3685bb1ef2fdac29dcd68" },
+    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313-manylinux_2_28_x86_64.whl" },
+    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313-win_amd64.whl" },
     { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313t-manylinux_2_28_aarch64.whl" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313t-manylinux_2_28_x86_64.whl", hash = "sha256:6344260959ebcfa6dae458e1c4365195bcfdf00f4f1f1ad438cbaf50756829ed" },
-    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313t-win_amd64.whl", hash = "sha256:9c0cd89e54ce44ce3208c5cf4163773b9cda0067e4b48cfcac56a4e04af52040" },
+    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313t-manylinux_2_28_x86_64.whl" },
+    { url = "https://download.pytorch.org/whl/cu129/torch-2.8.0%2Bcu129-cp313-cp313t-win_amd64.whl" },
 ]
 
 [[package]]

@@ -1,16 +1,12 @@
+import math
 import time
 
 import cv2
 import pandas as pd
-import math
 from pypylon import pylon
 
 cam = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
 cam.Open()
-
-cam.UserSetSelector.SetValue("Default")
-cam.UserSetLoad.Execute()
-cam.PixelFormat.SetValue("BayerRG8")
 
 print(f"Theoretical FPS: {cam.BslResultingAcquisitionFrameRate.Value}")
 
@@ -28,27 +24,37 @@ def stress_test(test_duration: int, record_sensor_temp: bool = False, view_feed:
     previous_time = time.time()
     # Update calculations time in seconds
     update_time = 1
+
+    # Initialize variables
     frame_count = 0
+    prev_timestamp = 0
     fps_disp = ""
     coreboard_temp_disp = ""
     sensor_temp_disp = ""
 
     while cam.IsGrabbing():
-        grabResult = cam.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
+        grab_result = cam.RetrieveResult(5000, pylon.TimeoutHandling_ThrowException)
         if time.time() - start_time >= test_duration:
             print("Test duration reached, exiting...")
             break
 
-        if grabResult.GrabSucceeded():
+        if grab_result.GrabSucceeded():
             frame_count += 1
             TIME = time.time() - previous_time
 
+            # Calculate the fps value based on frame timestamps
+            if grab_result.HasCRC() and grab_result.CheckCRC() == True:
+                timestamp = grab_result.ChunkTimestamp.Value
+                internal_fps = 1 / ((timestamp - prev_timestamp) * 1e-9)
+                prev_timestamp = timestamp
+
+            # Calculate some values every update_time seconds and append to data dict
             if (TIME) >= update_time:
-                # Calculate the FPS value
-                FPS = frame_count / (TIME)
+                # Calculate the external fps value
+                external_fps = frame_count / (TIME)
                 frame_count = 0
                 previous_time = time.time()
-                fps_disp = f"FPS: {FPS:.2f}"
+                fps_disp = f"FPS: {external_fps:.2f}"
 
                 # Get the coreboard temperature
                 cam.DeviceTemperatureSelector.Value = "Coreboard"
@@ -65,7 +71,8 @@ def stress_test(test_duration: int, record_sensor_temp: bool = False, view_feed:
 
                 data.append({
                     "time": time.time() - start_time,
-                    "fps": FPS,
+                    "external_fps": external_fps,
+                    "internal_fps": internal_fps if grab_result.HasCRC() and grab_result.CheckCRC() == True else None,
                     "coreboard_temp": coreboard_temp,
                     "sensor_temp": sensor_temp if record_sensor_temp else None
                 })
@@ -78,7 +85,7 @@ def stress_test(test_duration: int, record_sensor_temp: bool = False, view_feed:
 
             if view_feed:
                 # Access the image data
-                image = converter.Convert(grabResult)
+                image = converter.Convert(grab_result)
                 frame = image.GetArray()
 
                 # Add info to image and display
@@ -114,7 +121,7 @@ def stress_test(test_duration: int, record_sensor_temp: bool = False, view_feed:
                 k = cv2.waitKey(1)
                 if k == 27:
                     break
-        grabResult.Release()
+        grab_result.Release()
 
     # Releasing the resources
     cam.StopGrabbing()
@@ -122,9 +129,9 @@ def stress_test(test_duration: int, record_sensor_temp: bool = False, view_feed:
 
     return data
 
-def cooldown():
+def temp_stabilization():
     # Amount of times the temperature needs to be close to each other before stopping the cooldown
-    stable_temp_count = 5
+    stable_temp_count = 8
     count = 0
     coreboard_temp = 0
 
@@ -136,31 +143,62 @@ def cooldown():
         prev_coreboard_temp = coreboard_temp
         coreboard_temp = cam.DeviceTemperature.Value
         print(coreboard_temp)
-        print(count)
 
-        if math.isclose(coreboard_temp, prev_coreboard_temp, abs_tol=5e-2):
+        if math.isclose(coreboard_temp, prev_coreboard_temp, abs_tol=0.6e-2):
             count += 1
+            print(f"{count=}")
             if count >= stable_temp_count:
                 print("Coreboard temperature stabilized, ending cooldown.")
                 return
         else:
             count = 0
-        time.sleep(1)
+            print(f"{count=}")
+        time.sleep(4)
+
+def set_chunkmode():
+    cam.ChunkModeActive.Value = True
+    cam.ChunkSelector.Value = "Timestamp"
+    cam.ChunkEnable.Value = True
+    cam.ChunkSelector.Value = "PayloadCRC16"
+    cam.ChunkEnable.Value = True
 
 
 if __name__ == "__main__":
-    # Test durations in seconds
-    durations = [10, 30, 60, 300, 600, 1200, 1800]
-    with_sensor_temp = [False, True]
+    print("Stabilising temperature")
+    temp_stabilization()
 
-    for with_sensor_temp in with_sensor_temp:
+    # Test durations in seconds
+    durations = [10, 30, 60, 300, 600, 1200, 1800, 3600]
+    external_cooling = True
+
+    # Test with compression beyond
+    cam.UserSetSelector.SetValue("UserSet1")
+    cam.UserSetLoad.Execute()
+    set_chunkmode()
+
+    for with_sensor_temp in [False, True]:
         for duration in durations:
             print(f"Starting stress test for {duration} seconds..., with sensor_temp: {with_sensor_temp}")
-            data = stress_test(test_duration=duration, record_sensor_temp=True)
+            data = stress_test(test_duration=duration, record_sensor_temp=with_sensor_temp)
             df = pd.DataFrame(data)
-            df.to_csv(f"basler_stress_test_{duration}_{with_sensor_temp}.csv", index=False)
+            df.to_csv(f"./test_data/basler_stress_test_{duration}_sensortemp_{with_sensor_temp}_cooling_{external_cooling}_CB.csv", index=False)
             print(f"Stress test for {duration} seconds completed and data saved.")
-            print("Cooling down before next test...")
 
-            # Cooldown
-            cooldown()
+            print("Cooling down before next test...")
+            temp_stabilization()
+
+    # Test with default settings
+    # cam.UserSetSelector.SetValue("Default")
+    # cam.UserSetLoad.Execute()
+    # set_chunkmode()
+    #
+    # for with_sensor_temp in [False]:
+    #     for duration in durations:
+    #         print(f"Starting stress test for {duration} seconds..., with sensor_temp: {with_sensor_temp}")
+    #         data = stress_test(test_duration=duration, record_sensor_temp=with_sensor_temp)
+    #         df = pd.DataFrame(data)
+    #         df.to_csv(f"./test_data/basler_stress_test_{duration}_sensortemp_{with_sensor_temp}_cooling_{external_cooling}_Default.csv", index=False,)
+    #         print(f"Stress test for {duration} seconds completed and data saved.")
+    #
+    #         print("Cooling down before next test...")
+    #         temp_stabilization()

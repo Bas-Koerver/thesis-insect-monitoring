@@ -9,6 +9,7 @@ dependencies = [
     "kornia>=0.8.1",
     "networkx>=3.5",
     "numba>=0.61.2",
+    "plotly[express]>=6.3.0",
     "pypylon>=4.2.0",
     "torch>=2.8.0",
     "torchvision>=0.23.0",
