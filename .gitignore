@@ -96,6 +96,7 @@ fabric.properties
 
 ### Model files ###
 *.pt
+runs/
 
 ### Datasets ###
 datasets/
