@@ -11,6 +11,7 @@ dependencies = [
     "numba>=0.61.2",
     "plotly[express]>=6.3.0",
     "pypylon>=4.2.0",
+    "scikit-learn>=1.7.2",
     "torch>=2.8.0",
     "torchvision>=0.23.0",
     "ultralytics>=8.3.178",
@@ -40,4 +41,5 @@ dev = [
     "jupyterlab>=4.4.5",
     "matplotlib>=3.10.5",
     "opencv-python>=4.12.0.88",
+    "video2calibration>=0.0.1",
 ]
