@@ -1,0 +1,3 @@
+[submodule "stereo-camera-calibration"]
+	path = stereo-camera-calibration
+	url = git@github.com:Bas-Koerver/stereo-camera-calibration.git
