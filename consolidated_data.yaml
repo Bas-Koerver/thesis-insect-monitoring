@@ -1,0 +1,14 @@
+# Dataset root directory
+path: ./datasets/consolidated_data
+
+# Train/val/test sets
+train: images/train
+val: images/val
+test: images/test
+
+channels: 3
+
+# Classes
+names:
+  0: insect
+  1: bee
